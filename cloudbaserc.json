@@ -1,0 +1,52 @@
+# 腾讯云 CloudBase 部署配置
+# 文档：https://docs.cloudbase.net/
+
+version: 2
+
+envId: "{{ENV_ID}}"  # 在 CloudBase 控制台创建环境后填入
+
+# 区域
+region: ap-shanghai
+
+# 入口配置 — Next.js SSR/SSG
+entries:
+  - type: cloud-run
+    name: knowledge-reader
+    path: ./
+    build:
+      # 使用 Node.js 22
+      runtime: nodejs:22
+      # 构建命令
+      command: npm run build
+      # 输出目录
+      output: .next
+      # 启动命令（standalone 模式）
+      start: node .next/standalone/server.js
+    # 环境变量（在 CloudBase 控制台配置，不在此明文写入）
+    env:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_MOCK_AUTH=false
+      - PORT=3000
+    # 资源规格
+    spec:
+      cpu: 1
+      memory: 2048
+      instanceNum: 1
+      maxInstanceNum: 5
+      minInstanceNum: 0
+    # 健康检查
+    healthCheck:
+      path: /api/health
+      port: 3000
+
+# 静态资源 CDN 加速
+statics:
+  - path: /static
+    dir: .next/static
+  - path: /public
+    dir: public
+
+# 自定义域名（在控制台绑定）
+# domains:
+#   - domain: your-domain.com
+#     entry: knowledge-reader
