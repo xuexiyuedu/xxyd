@@ -27,9 +27,10 @@ npm run build
 rm -rf "$BUILD_DIR" "$PACKAGE"
 mkdir -p "$BUILD_DIR"
 
-# 4. 复制 standalone 输出
+# 4. 复制 standalone 输出（包括隐藏目录 .next）
 echo "📂 复制 standalone 文件..."
-cp -r "$PROJECT_DIR/.next/standalone/"* "$BUILD_DIR/"
+# 使用 . 代替 * 以复制隐藏目录（如 .next）
+cp -r "$PROJECT_DIR/.next/standalone/." "$BUILD_DIR/"
 
 # 5. 复制静态资源
 cp -r "$PROJECT_DIR/public" "$BUILD_DIR/public" 2>/dev/null || true

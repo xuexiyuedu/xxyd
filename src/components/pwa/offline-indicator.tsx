@@ -6,18 +6,42 @@ import { cn } from "@/lib/utils";
 
 export function OfflineIndicator() {
   const [isOffline, setIsOffline] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    setIsOffline(!navigator.onLine);
+    // 用实际网络请求检测，而非依赖不可靠的 navigator.onLine
+    const checkOnline = async () => {
+      try {
+        const res = await fetch("/api/health", { 
+          method: "HEAD",
+          cache: "no-store",
+          signal: AbortSignal.timeout(5000),
+        });
+        setIsOffline(!res.ok);
+      } catch {
+        // fetch 失败再检查 navigator.onLine 作为 fallback
+        setIsOffline(!navigator.onLine);
+      }
+      setChecked(true);
+    };
+
+    // 初始检测
+    checkOnline();
+
+    // 监听系统事件（作为辅助）
     const handleOffline = () => setIsOffline(true);
-    const handleOnline = () => setIsOffline(false);
+    const handleOnline = () => checkOnline();
     window.addEventListener("offline", handleOffline);
     window.addEventListener("online", handleOnline);
+
     return () => {
       window.removeEventListener("offline", handleOffline);
       window.removeEventListener("online", handleOnline);
     };
   }, []);
+
+  // 未完成初始检测时，不显示离线提示（避免误报）
+  if (!checked) return null;
 
   return (
     <div

@@ -54,18 +54,15 @@ if ! command -v certbot &> /dev/null; then
   apt-get install -y certbot python3-certbot-nginx
 fi
 
-# 5. 配置 Nginx
-echo "🔧 配置 Nginx..."
+# 5. 配置 Nginx（先 HTTP，Certbot 会自动加 HTTPS）
+echo "🔧 配置 Nginx（HTTP）..."
 cp "$APP_DIR/nginx-xxyd.conf" /etc/nginx/sites-available/xxyd
-# 替换占位符
-sed -i "s|APP_DIR_PLACEHOLDER|$APP_DIR|g" /etc/nginx/sites-available/xxyd
-sed -i "s|xxyd.work|$DOMAIN|g" /etc/nginx/sites-available/xxyd
 
 # 启用站点
 if [ ! -L /etc/nginx/sites-enabled/xxyd ]; then
   ln -s /etc/nginx/sites-available/xxyd /etc/nginx/sites-enabled/xxyd
 fi
-# 删除默认站点
+# 禁用默认站点（避免冲突）
 rm -f /etc/nginx/sites-enabled/default
 
 # 检查 Nginx 配置
