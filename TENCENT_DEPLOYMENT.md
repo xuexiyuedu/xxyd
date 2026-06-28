@@ -52,25 +52,31 @@ ssh root@<服务器IP>
 ```
 
 ### 3.2 解压并运行部署脚本
+
 ```bash
 cd /root
+rm -rf xxyd-server
 tar -xzf xxyd-server.tar.gz
 cd xxyd-server
 sudo bash deploy-server.sh
 ```
 
-### 3.3 按提示输入
-脚本会提示输入：
-- **域名**：输入 `xxyd.work`
-- **邮箱**：用于 SSL 证书（输入你的邮箱）
+> 注意：脚本里域名已写死为 `xxyd.work`，邮箱使用 `admin@xxyd.work` 用于 SSL 证书。如果你需要换成其他域名，请先修改 `scripts/deploy-server.sh` 里的 `DOMAIN` 变量。
 
-脚本会自动完成：
-- 安装 Node.js 22
+### 3.3 脚本自动完成
+
+- 安装 Node.js 22 LTS
 - 安装 PM2 进程管理器
 - 安装 Nginx
 - 安装 SSL 证书（Let's Encrypt）
 - 配置反向代理
-- 启动应用
+- 启动应用并持久化
+
+如果 SSL 证书申请失败（通常是域名还没解析），可以先等域名解析生效后再手动运行：
+
+```bash
+sudo certbot --nginx -d xxyd.work
+```
 
 ---
 
